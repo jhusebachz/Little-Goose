@@ -1,6 +1,6 @@
 {
   "name": "little-goose",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Expo Android app for thrift-store photo pricing and resale comps.",
   "private": true,
   "main": "node_modules/expo/AppEntry.js",

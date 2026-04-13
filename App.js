@@ -24,6 +24,60 @@ const STORAGE_KEYS = {
   openAiModel: "little-goose-openai-model",
   ebayAppId: "little-goose-ebay-app-id",
   ebayGlobalId: "little-goose-ebay-global-id",
+  themeMode: "little-goose-theme-mode",
+};
+
+const themes = {
+  dark: {
+    gradient: ["#0c1117", "#121a24", "#1d2530"],
+    heroCard: "#17202b",
+    panel: "#1b2633",
+    surface: "#233140",
+    surfaceAlt: "#101821",
+    text: "#f4ede5",
+    textMuted: "#aeb8c5",
+    accent: "#f09a4a",
+    accentStrong: "#db7135",
+    accentSoft: "#3a2b21",
+    positiveSoft: "#203628",
+    positiveText: "#9cc8a1",
+    chip: "#223041",
+    chipAccent: "#39291f",
+    field: "#101821",
+    border: "#314255",
+    errorBg: "#45202a",
+    errorText: "#ffccd7",
+    settingsButton: "#223041",
+    settingsText: "#f3e9dc",
+    conditionActive: "#6a9a65",
+    conditionInactive: "#243241",
+    conditionInactiveText: "#d3dbe5",
+  },
+  light: {
+    gradient: ["#f8f0e5", "#efdfc8", "#ead7be"],
+    heroCard: "#fff8ef",
+    panel: "#fffaf3",
+    surface: "#f8ebdb",
+    surfaceAlt: "#f3e3cf",
+    text: "#241915",
+    textMuted: "#65554a",
+    accent: "#f0b05a",
+    accentStrong: "#bd6136",
+    accentSoft: "#f5e5d1",
+    positiveSoft: "#e7f0e2",
+    positiveText: "#436142",
+    chip: "rgba(255,255,255,0.75)",
+    chipAccent: "rgba(240,176,90,0.22)",
+    field: "#fffaf3",
+    border: "#ead9c5",
+    errorBg: "#fdeaf0",
+    errorText: "#8c2941",
+    settingsButton: "#fff7ee",
+    settingsText: "#624232",
+    conditionActive: "#5c8259",
+    conditionInactive: "#fff6ec",
+    conditionInactiveText: "#6f5b4c",
+  },
 };
 
 const conditionOptions = [
@@ -45,12 +99,14 @@ export default function App() {
     openAiModel: "gpt-4.1-mini",
     ebayAppId: "",
     ebayGlobalId: "EBAY-US",
+    themeMode: "dark",
   });
   const [credentials, setCredentials] = useState({
     openAiKey: "",
     openAiModel: "gpt-4.1-mini",
     ebayAppId: "",
     ebayGlobalId: "EBAY-US",
+    themeMode: "dark",
   });
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
@@ -69,6 +125,8 @@ export default function App() {
     return "Add your API keys in Settings to unlock the full flow.";
   }, [booting, credentials]);
 
+  const theme = themes[credentials.themeMode] || themes.dark;
+
   async function loadSettings() {
     try {
       const values = await Promise.all([
@@ -76,6 +134,7 @@ export default function App() {
         SecureStore.getItemAsync(STORAGE_KEYS.openAiModel),
         SecureStore.getItemAsync(STORAGE_KEYS.ebayAppId),
         SecureStore.getItemAsync(STORAGE_KEYS.ebayGlobalId),
+        SecureStore.getItemAsync(STORAGE_KEYS.themeMode),
       ]);
 
       const next = {
@@ -83,6 +142,7 @@ export default function App() {
         openAiModel: values[1] || "gpt-4.1-mini",
         ebayAppId: values[2] || "",
         ebayGlobalId: values[3] || "EBAY-US",
+        themeMode: values[4] || "dark",
       };
 
       setCredentials(next);
@@ -98,6 +158,7 @@ export default function App() {
       openAiModel: settingsDraft.openAiModel.trim() || "gpt-4.1-mini",
       ebayAppId: settingsDraft.ebayAppId.trim(),
       ebayGlobalId: settingsDraft.ebayGlobalId.trim() || "EBAY-US",
+      themeMode: settingsDraft.themeMode === "light" ? "light" : "dark",
     };
 
     await Promise.all([
@@ -105,6 +166,7 @@ export default function App() {
       SecureStore.setItemAsync(STORAGE_KEYS.openAiModel, next.openAiModel),
       SecureStore.setItemAsync(STORAGE_KEYS.ebayAppId, next.ebayAppId),
       SecureStore.setItemAsync(STORAGE_KEYS.ebayGlobalId, next.ebayGlobalId),
+      SecureStore.setItemAsync(STORAGE_KEYS.themeMode, next.themeMode),
     ]);
 
     setCredentials(next);
@@ -192,64 +254,78 @@ export default function App() {
   }
 
   return (
-    <LinearGradient colors={["#f8f0e5", "#efdfc8", "#ead7be"]} style={styles.screen}>
+    <LinearGradient colors={theme.gradient} style={styles.screen}>
       <SafeAreaView style={styles.safe}>
-        <StatusBar style="dark" />
+        <StatusBar style={credentials.themeMode === "dark" ? "light" : "dark"} />
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.heroCard}>
+          <View style={[styles.heroCard, { backgroundColor: theme.heroCard }]}>
             <View style={styles.heroTopRow}>
-              <Text style={styles.eyebrow}>Little Goose</Text>
-              <Pressable style={styles.settingsButton} onPress={() => setSettingsVisible(true)}>
-                <Text style={styles.settingsButtonText}>Settings</Text>
+              <Text style={[styles.eyebrow, { color: theme.accent }]}>Little Goose</Text>
+              <Pressable style={[styles.settingsButton, { backgroundColor: theme.settingsButton }]} onPress={() => setSettingsVisible(true)}>
+                <Text style={[styles.settingsButtonText, { color: theme.settingsText }]}>Settings</Text>
               </Pressable>
             </View>
-            <Text style={styles.heroTitle}>Snap thrift finds and sanity-check resale pricing.</Text>
-            <Text style={styles.heroText}>
+            <Text style={[styles.heroTitle, { color: theme.text }]}>Snap thrift finds and sanity-check resale pricing.</Text>
+            <Text style={[styles.heroText, { color: theme.textMuted }]}>
               Use your camera in the aisle, add a quick title if needed, and compare sold plus active
               comps before you buy.
             </Text>
             <View style={styles.chipsRow}>
-              <Chip label={readyText} accent />
-              <Chip label="Android via Expo" />
-              <Chip label="eBay sold + active comps" />
+              <Chip label={readyText} accent theme={theme} />
+              <Chip label="Android via Expo" theme={theme} />
+              <Chip label="eBay sold + active comps" theme={theme} />
             </View>
           </View>
 
-          <View style={styles.panel}>
-            <Text style={styles.panelTitle}>Price a find</Text>
-            <Text style={styles.panelText}>Photos work best when the label or model number is visible.</Text>
+          <View style={[styles.panel, { backgroundColor: theme.panel }]}>
+            <Text style={[styles.panelTitle, { color: theme.text }]}>Price a find</Text>
+            <Text style={[styles.panelText, { color: theme.textMuted }]}>Photos work best when the label or model number is visible.</Text>
             <View style={styles.photoActions}>
-              <ActionButton label="Take photo" onPress={() => pickImage("camera")} />
-              <ActionButton label="Choose from library" onPress={() => pickImage("library")} secondary />
+              <ActionButton label="Take photo" onPress={() => pickImage("camera")} theme={theme} />
+              <ActionButton label="Choose from library" onPress={() => pickImage("library")} secondary theme={theme} />
             </View>
 
             {selectedImage ? (
               <Image source={{ uri: selectedImage.uri }} style={styles.preview} />
             ) : (
-              <View style={styles.previewPlaceholder}>
-                <Text style={styles.previewPlaceholderText}>Your photo preview will show up here.</Text>
+              <View style={[styles.previewPlaceholder, { backgroundColor: theme.surfaceAlt }]}>
+                <Text style={[styles.previewPlaceholderText, { color: theme.textMuted }]}>Your photo preview will show up here.</Text>
               </View>
             )}
 
-            <LabeledField label="Item title">
+            <LabeledField label="Item title" theme={theme}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: theme.field, color: theme.text, borderColor: theme.border }]}
                 value={itemName}
                 onChangeText={setItemName}
                 placeholder="Sony Walkman WM-FX195"
-                placeholderTextColor="#8b7b6d"
+                placeholderTextColor={theme.textMuted}
               />
             </LabeledField>
 
-            <LabeledField label="Condition">
+            <LabeledField label="Condition" theme={theme}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.conditionRow}>
                 {conditionOptions.map((option) => (
                   <Pressable
                     key={option.value}
-                    style={[styles.conditionChip, condition === option.value ? styles.conditionChipActive : null]}
+                    style={[
+                      styles.conditionChip,
+                      {
+                        backgroundColor:
+                          condition === option.value ? theme.conditionActive : theme.conditionInactive,
+                      },
+                    ]}
                     onPress={() => setCondition(option.value)}
                   >
-                    <Text style={[styles.conditionChipText, condition === option.value ? styles.conditionChipTextActive : null]}>
+                    <Text
+                      style={[
+                        styles.conditionChipText,
+                        {
+                          color:
+                            condition === option.value ? "#f8f1e7" : theme.conditionInactiveText,
+                        },
+                      ]}
+                    >
                       {option.label}
                     </Text>
                   </Pressable>
@@ -257,35 +333,35 @@ export default function App() {
               </ScrollView>
             </LabeledField>
 
-            <LabeledField label="Notes">
+            <LabeledField label="Notes" theme={theme}>
               <TextInput
-                style={[styles.input, styles.notesInput]}
+                style={[styles.input, styles.notesInput, { backgroundColor: theme.field, color: theme.text, borderColor: theme.border }]}
                 value={notes}
                 onChangeText={setNotes}
                 placeholder="Brand, material, flaws, or model number"
-                placeholderTextColor="#8b7b6d"
+                placeholderTextColor={theme.textMuted}
                 multiline
                 textAlignVertical="top"
               />
             </LabeledField>
 
-            <Pressable style={styles.primaryButton} onPress={appraiseItem} disabled={loading || booting}>
+            <Pressable style={[styles.primaryButton, { backgroundColor: theme.accentStrong }]} onPress={appraiseItem} disabled={loading || booting}>
               {loading ? <ActivityIndicator color="#fffaf1" /> : <Text style={styles.primaryButtonText}>Find pricing</Text>}
             </Pressable>
 
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error ? <Text style={[styles.errorText, { color: theme.errorText, backgroundColor: theme.errorBg }]}>{error}</Text> : null}
           </View>
 
-          <View style={styles.panel}>
-            <Text style={styles.panelTitle}>What Little Goose found</Text>
-            <Text style={styles.panelText}>Sold comps are strongest. Active listings help when sold data is thin.</Text>
+          <View style={[styles.panel, { backgroundColor: theme.panel }]}>
+            <Text style={[styles.panelTitle, { color: theme.text }]}>What Little Goose found</Text>
+            <Text style={[styles.panelText, { color: theme.textMuted }]}>Sold comps are strongest. Active listings help when sold data is thin.</Text>
 
             {result ? (
-              <ResultsCard result={result} />
+              <ResultsCard result={result} theme={theme} />
             ) : (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyTitle}>Nothing priced yet.</Text>
-                <Text style={styles.emptyText}>Add your keys in Settings, snap a photo, and Little Goose will do the rest.</Text>
+                <Text style={[styles.emptyTitle, { color: theme.text }]}>Nothing priced yet.</Text>
+                <Text style={[styles.emptyText, { color: theme.textMuted }]}>Add your keys in Settings, snap a photo, and Little Goose will do the rest.</Text>
               </View>
             )}
           </View>
@@ -297,100 +373,117 @@ export default function App() {
           onChange={setSettingsDraft}
           onClose={() => setSettingsVisible(false)}
           onSave={saveSettings}
+          theme={theme}
         />
       </SafeAreaView>
     </LinearGradient>
   );
 }
 
-function ResultsCard({ result }) {
+function ResultsCard({ result, theme }) {
   return (
     <View style={styles.resultStack}>
-      <View style={styles.summaryCard}>
-        <Text style={styles.resultLabel}>Identified item</Text>
-        <Text style={styles.resultTitle}>{result.identification.productName}</Text>
-        <Text style={styles.resultSubtext}>Confidence {Math.round((result.identification.confidence || 0) * 100)}%</Text>
+      <View style={[styles.summaryCard, { backgroundColor: theme.surfaceAlt }]}>
+        <Text style={[styles.resultLabel, { color: theme.accent }]}>Identified item</Text>
+        <Text style={[styles.resultTitle, { color: theme.text }]}>{result.identification.productName}</Text>
+        <Text style={[styles.resultSubtext, { color: theme.textMuted }]}>Confidence {Math.round((result.identification.confidence || 0) * 100)}%</Text>
         <View style={styles.summaryGrid}>
-          <SummaryBox label="Search query" value={result.identification.searchQuery} />
-          <SummaryBox label="Condition" value={result.identification.conditionEstimate} />
-          <SummaryBox label="Category" value={result.identification.category || "Not specified"} />
-          <SummaryBox label="Brand / model" value={buildBrandModel(result.identification)} />
+          <SummaryBox label="Search query" value={result.identification.searchQuery} theme={theme} />
+          <SummaryBox label="Condition" value={result.identification.conditionEstimate} theme={theme} />
+          <SummaryBox label="Category" value={result.identification.category || "Not specified"} theme={theme} />
+          <SummaryBox label="Brand / model" value={buildBrandModel(result.identification)} theme={theme} />
         </View>
-        <View style={styles.priceBand}>
-          <Text style={styles.resultLabel}>Likely price band</Text>
-          <Text style={styles.priceBandValue}>
+        <View style={[styles.priceBand, { backgroundColor: theme.accentSoft }]}>
+          <Text style={[styles.resultLabel, { color: theme.accent }]}>Likely price band</Text>
+          <Text style={[styles.priceBandValue, { color: theme.text }]}>
             {result.stats ? `${formatMoney(result.stats.low)} - ${formatMoney(result.stats.high)}` : "Not enough data yet"}
           </Text>
-          <Text style={styles.resultSubtext}>
+          <Text style={[styles.resultSubtext, { color: theme.textMuted }]}>
             {result.stats
               ? `Median ${formatMoney(result.stats.median)} from ${result.stats.sampleSize} ${result.stats.basis} comp${result.stats.sampleSize === 1 ? "" : "s"}`
               : "Add your eBay app ID or tighten the title to improve the match."}
           </Text>
         </View>
         {result.guidance.map((line) => (
-          <Text key={line} style={styles.guidanceLine}>• {line}</Text>
+          <Text key={line} style={[styles.guidanceLine, { color: theme.textMuted }]}>• {line}</Text>
         ))}
         <View style={styles.linkRow}>
-          <Pressable style={styles.linkButton} onPress={() => Linking.openURL(result.sourceUrls.sold)}>
-            <Text style={styles.linkButtonText}>Open sold search</Text>
+          <Pressable style={[styles.linkButton, { backgroundColor: theme.positiveSoft }]} onPress={() => Linking.openURL(result.sourceUrls.sold)}>
+            <Text style={[styles.linkButtonText, { color: theme.positiveText }]}>Open sold search</Text>
           </Pressable>
-          <Pressable style={styles.linkButton} onPress={() => Linking.openURL(result.sourceUrls.active)}>
-            <Text style={styles.linkButtonText}>Open active search</Text>
+          <Pressable style={[styles.linkButton, { backgroundColor: theme.positiveSoft }]} onPress={() => Linking.openURL(result.sourceUrls.active)}>
+            <Text style={[styles.linkButtonText, { color: theme.positiveText }]}>Open active search</Text>
           </Pressable>
         </View>
       </View>
-      <CompSection title="Sold comps" items={result.soldComps} />
-      <CompSection title="Active listings" items={result.activeComps} />
+      <CompSection title="Sold comps" items={result.soldComps} theme={theme} />
+      <CompSection title="Active listings" items={result.activeComps} theme={theme} />
     </View>
   );
 }
 
-function CompSection({ title, items }) {
+function CompSection({ title, items, theme }) {
   return (
     <View style={styles.compSection}>
-      <Text style={styles.compSectionTitle}>{title}</Text>
+      <Text style={[styles.compSectionTitle, { color: theme.text }]}>{title}</Text>
       {items.length
         ? items.map((item) => (
-            <Pressable key={item.url} style={styles.compCard} onPress={() => Linking.openURL(item.url)}>
-              {item.image ? <Image source={{ uri: item.image }} style={styles.compImage} /> : <View style={styles.compImageFallback} />}
+            <Pressable key={item.url} style={[styles.compCard, { backgroundColor: theme.surfaceAlt }]} onPress={() => Linking.openURL(item.url)}>
+              {item.image ? <Image source={{ uri: item.image }} style={styles.compImage} /> : <View style={[styles.compImageFallback, { backgroundColor: theme.surface }]} />}
               <View style={styles.compCopy}>
-                <Text style={styles.compTitle}>{item.title}</Text>
-                <Text style={styles.compMeta}>{item.condition || "Condition not listed"}</Text>
-                <Text style={styles.compPrice}>
+                <Text style={[styles.compTitle, { color: theme.text }]}>{item.title}</Text>
+                <Text style={[styles.compMeta, { color: theme.textMuted }]}>{item.condition || "Condition not listed"}</Text>
+                <Text style={[styles.compPrice, { color: theme.positiveText }]}>
                   {formatMoney(item.price)} {item.shipping > 0 ? `+ ${formatMoney(item.shipping)} ship` : "• free ship"}
                 </Text>
               </View>
             </Pressable>
           ))
-        : <Text style={styles.emptyText}>No clean comps captured yet.</Text>}
+        : <Text style={[styles.emptyText, { color: theme.textMuted }]}>No clean comps captured yet.</Text>}
     </View>
   );
 }
 
-function SettingsModal({ visible, value, onChange, onClose, onSave }) {
+function SettingsModal({ visible, value, onChange, onClose, onSave, theme }) {
   return (
     <Modal visible={visible} animationType="slide">
-      <SafeAreaView style={styles.modalScreen}>
+      <SafeAreaView style={[styles.modalScreen, { backgroundColor: theme.gradient[1] }]}>
         <ScrollView contentContainerStyle={styles.modalContent}>
-          <Text style={styles.modalTitle}>Settings</Text>
-          <Text style={styles.modalText}>
+          <Text style={[styles.modalTitle, { color: theme.text }]}>Settings</Text>
+          <Text style={[styles.modalText, { color: theme.textMuted }]}>
             Your keys are stored only on this device with SecureStore. OpenAI powers photo identification. eBay powers live comps.
           </Text>
-          <LabeledField label="OpenAI API key">
-            <TextInput style={styles.input} value={value.openAiKey} onChangeText={(text) => onChange((current) => ({ ...current, openAiKey: text }))} placeholder="sk-..." placeholderTextColor="#8b7b6d" autoCapitalize="none" autoCorrect={false} />
+          <LabeledField label="Theme" theme={theme}>
+            <View style={styles.themeRow}>
+              <Pressable
+                style={[styles.themeButton, { backgroundColor: value.themeMode === "dark" ? theme.accentStrong : theme.conditionInactive }]}
+                onPress={() => onChange((current) => ({ ...current, themeMode: "dark" }))}
+              >
+                <Text style={[styles.themeButtonText, { color: value.themeMode === "dark" ? "#fffaf1" : theme.conditionInactiveText }]}>Dark</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.themeButton, { backgroundColor: value.themeMode === "light" ? theme.accentStrong : theme.conditionInactive }]}
+                onPress={() => onChange((current) => ({ ...current, themeMode: "light" }))}
+              >
+                <Text style={[styles.themeButtonText, { color: value.themeMode === "light" ? "#fffaf1" : theme.conditionInactiveText }]}>Light</Text>
+              </Pressable>
+            </View>
           </LabeledField>
-          <LabeledField label="OpenAI model">
-            <TextInput style={styles.input} value={value.openAiModel} onChangeText={(text) => onChange((current) => ({ ...current, openAiModel: text }))} placeholder="gpt-4.1-mini" placeholderTextColor="#8b7b6d" autoCapitalize="none" autoCorrect={false} />
+          <LabeledField label="OpenAI API key" theme={theme}>
+            <TextInput style={[styles.input, { backgroundColor: theme.field, color: theme.text, borderColor: theme.border }]} value={value.openAiKey} onChangeText={(text) => onChange((current) => ({ ...current, openAiKey: text }))} placeholder="sk-..." placeholderTextColor={theme.textMuted} autoCapitalize="none" autoCorrect={false} />
           </LabeledField>
-          <LabeledField label="eBay App ID">
-            <TextInput style={styles.input} value={value.ebayAppId} onChangeText={(text) => onChange((current) => ({ ...current, ebayAppId: text }))} placeholder="Your eBay App ID" placeholderTextColor="#8b7b6d" autoCapitalize="none" autoCorrect={false} />
+          <LabeledField label="OpenAI model" theme={theme}>
+            <TextInput style={[styles.input, { backgroundColor: theme.field, color: theme.text, borderColor: theme.border }]} value={value.openAiModel} onChangeText={(text) => onChange((current) => ({ ...current, openAiModel: text }))} placeholder="gpt-4.1-mini" placeholderTextColor={theme.textMuted} autoCapitalize="none" autoCorrect={false} />
           </LabeledField>
-          <LabeledField label="eBay global ID">
-            <TextInput style={styles.input} value={value.ebayGlobalId} onChangeText={(text) => onChange((current) => ({ ...current, ebayGlobalId: text }))} placeholder="EBAY-US" placeholderTextColor="#8b7b6d" autoCapitalize="characters" autoCorrect={false} />
+          <LabeledField label="eBay App ID" theme={theme}>
+            <TextInput style={[styles.input, { backgroundColor: theme.field, color: theme.text, borderColor: theme.border }]} value={value.ebayAppId} onChangeText={(text) => onChange((current) => ({ ...current, ebayAppId: text }))} placeholder="Your eBay App ID" placeholderTextColor={theme.textMuted} autoCapitalize="none" autoCorrect={false} />
+          </LabeledField>
+          <LabeledField label="eBay global ID" theme={theme}>
+            <TextInput style={[styles.input, { backgroundColor: theme.field, color: theme.text, borderColor: theme.border }]} value={value.ebayGlobalId} onChangeText={(text) => onChange((current) => ({ ...current, ebayGlobalId: text }))} placeholder="EBAY-US" placeholderTextColor={theme.textMuted} autoCapitalize="characters" autoCorrect={false} />
           </LabeledField>
           <View style={styles.modalButtons}>
-            <ActionButton label="Close" onPress={onClose} secondary />
-            <ActionButton label="Save settings" onPress={onSave} />
+            <ActionButton label="Close" onPress={onClose} secondary theme={theme} />
+            <ActionButton label="Save settings" onPress={onSave} theme={theme} />
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -398,20 +491,27 @@ function SettingsModal({ visible, value, onChange, onClose, onSave }) {
   );
 }
 
-function LabeledField({ label, children }) {
-  return <View style={styles.field}><Text style={styles.fieldLabel}>{label}</Text>{children}</View>;
+function LabeledField({ label, children, theme }) {
+  return <View style={styles.field}><Text style={[styles.fieldLabel, { color: theme.text }]}>{label}</Text>{children}</View>;
 }
 
-function Chip({ label, accent = false }) {
-  return <View style={[styles.chip, accent ? styles.chipAccent : null]}><Text style={[styles.chipText, accent ? styles.chipTextAccent : null]}>{label}</Text></View>;
+function Chip({ label, accent = false, theme }) {
+  return <View style={[styles.chip, { backgroundColor: accent ? theme.chipAccent : theme.chip }]}><Text style={[styles.chipText, { color: accent ? theme.accent : theme.textMuted }]}>{label}</Text></View>;
 }
 
-function ActionButton({ label, onPress, secondary = false }) {
-  return <Pressable style={[styles.actionButton, secondary ? styles.actionButtonSecondary : null]} onPress={onPress}><Text style={[styles.actionButtonText, secondary ? styles.actionButtonTextSecondary : null]}>{label}</Text></Pressable>;
+function ActionButton({ label, onPress, secondary = false, theme }) {
+  return (
+    <Pressable
+      style={[styles.actionButton, { backgroundColor: secondary ? theme.conditionInactive : theme.accentStrong }]}
+      onPress={onPress}
+    >
+      <Text style={[styles.actionButtonText, { color: secondary ? theme.conditionInactiveText : "#fffaf1" }]}>{label}</Text>
+    </Pressable>
+  );
 }
 
-function SummaryBox({ label, value }) {
-  return <View style={styles.summaryBox}><Text style={styles.summaryLabel}>{label}</Text><Text style={styles.summaryValue}>{value}</Text></View>;
+function SummaryBox({ label, value, theme }) {
+  return <View style={[styles.summaryBox, { backgroundColor: theme.surface }]}><Text style={[styles.summaryLabel, { color: theme.textMuted }]}>{label}</Text><Text style={[styles.summaryValue, { color: theme.text }]}>{value}</Text></View>;
 }
 
 async function identifyItem({ imageUri, itemName, notes, condition, openAiKey, openAiModel }) {
@@ -843,4 +943,7 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 28, fontWeight: "800", color: "#291f18" },
   modalText: { color: "#6b5a4e", lineHeight: 22 },
   modalButtons: { flexDirection: "row", gap: 10 },
+  themeRow: { flexDirection: "row", gap: 10 },
+  themeButton: { flex: 1, borderRadius: 16, paddingVertical: 14, alignItems: "center", justifyContent: "center" },
+  themeButtonText: { fontWeight: "800" },
 });
