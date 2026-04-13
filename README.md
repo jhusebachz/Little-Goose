@@ -68,9 +68,9 @@ Because Expo Updates uses `runtimeVersion.policy = "appVersion"`, version change
 
 ## Current Release
 
-`1.0.1`
+`1.0.2`
 
-This release adds visual polish and device-ready customization on top of the first Android preview setup:
+This release refines the Android launcher presentation while keeping the recent UI customization improvements:
 
 - native Expo Android app shell for thrift-store photo pricing
 - on-device Settings storage for OpenAI and eBay credentials
@@ -79,6 +79,7 @@ This release adds visual polish and device-ready customization on top of the fir
 - EAS preview/production configuration for APK builds and OTA updates
 - dark mode and light mode in Settings, with dark mode as the default
 - proper Android app icon assets wired into Expo and adaptive icon config
+- adjusted app icon padding so the launcher icon no longer feels overly zoomed in
 
 ## Notes
 
