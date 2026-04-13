@@ -1,0 +1,34 @@
+{
+  "name": "little-goose",
+  "version": "1.0.0",
+  "description": "Expo Android app for thrift-store photo pricing and resale comps.",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "web": "expo start --web",
+    "preview:update": "eas update --channel preview"
+  },
+  "keywords": [
+    "thrift",
+    "pricing",
+    "resale",
+    "camera",
+    "openai"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "expo": "^55.0.14",
+    "expo-file-system": "^55.0.16",
+    "expo-image-picker": "^55.0.18",
+    "expo-linear-gradient": "^55.0.13",
+    "expo-secure-store": "^55.0.13",
+    "expo-status-bar": "^55.0.5",
+    "expo-updates": "^55.0.20",
+    "react": "19.2.0",
+    "react-native": "0.83.4",
+    "react-native-safe-area-context": "~5.6.2"
+  }
+}

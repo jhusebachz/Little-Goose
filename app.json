@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Little Goose",
+    "slug": "little-goose",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "littlegoose",
+    "userInterfaceStyle": "light",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "splash": {
+      "backgroundColor": "#f4ead8"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "com.johnw.littlegoose",
+      "permissions": [
+        "CAMERA"
+      ]
+    },
+    "plugins": [
+      "expo-updates"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f2cf446d-8848-4a5f-95bc-74dc25332a8b"
+      }
+    },
+    "owner": "jhusebachz"
+  }
+}
